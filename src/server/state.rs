@@ -618,6 +618,7 @@ fn build_mock_definition(
         },
         json_body: None,
         json_body_not: None,
+        json_body_str: None,
         json_body_includes: None,
         body_includes: None,
         body_excludes: None,

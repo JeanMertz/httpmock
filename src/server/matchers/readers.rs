@@ -488,6 +488,11 @@ pub mod expectations {
     }
 
     #[inline]
+    pub fn json_body_str(mock: &RequestRequirements) -> Option<Vec<&Value>> {
+        mock.json_body_str.as_ref().map(|b| vec![b])
+    }
+
+    #[inline]
     pub fn json_body_includes(mock: &RequestRequirements) -> Option<Vec<&serde_json::Value>> {
         mock.json_body_includes
             .as_ref()

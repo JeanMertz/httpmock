@@ -846,6 +846,16 @@ pub fn all() -> Vec<Box<dyn Matcher + Sync + Send>> {
             weight: 1,
         }),
         Box::new(SingleValueMatcher {
+            entity_name: "body",
+            matcher_method: "json_body_str",
+            matching_strategy: MatchingStrategy::Presence,
+            comparator: Box::new(JSONExactMatchComparator::new()),
+            expectation: readers::expectations::json_body_str,
+            request_value: readers::request_value::json_body,
+            diff_with: Some(Tokenizer::Line),
+            weight: 1,
+        }),
+        Box::new(SingleValueMatcher {
             entity_name: "JSON body",
             matcher_method: "json_body_includes",
             matching_strategy: MatchingStrategy::Presence,

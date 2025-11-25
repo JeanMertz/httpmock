@@ -914,6 +914,7 @@ pub struct RequestRequirements {
     pub body_matches: Option<Vec<HttpMockRegex>>,    // NEW
     pub json_body: Option<Value>,
     pub json_body_not: Option<Value>, // NEW
+    pub json_body_str: Option<Value>,
     pub json_body_includes: Option<Vec<Value>>,
     pub json_body_excludes: Option<Vec<Value>>, // NEW
     pub form_urlencoded_tuple: Option<Vec<(String, String)>>,
@@ -932,6 +933,32 @@ pub struct RequestRequirements {
     pub is_true: Option<Vec<Arc<dyn Fn(&HttpMockRequest) -> bool + Sync + Send>>>, // NEW + DEPRECATE matches() -> point to using "is_true" instead
     #[serde(skip)]
     pub is_false: Option<Vec<Arc<dyn Fn(&HttpMockRequest) -> bool + Sync + Send>>>, // NEW
+}
+
+mod serde_json_body_str {
+    use std::collections::BTreeSet;
+
+    use serde::{Deserialize as _, Deserializer, Serialize as _, Serializer};
+
+    pub fn serialize<S>(v: &Option<serde_json::Value>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let s: String = serde_json::to_string_pretty(v).map_err(serde::ser::Error::custom)?;
+        s.serialize(serializer)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<serde_json::Value>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        match Option::<String>::deserialize(deserializer)? {
+            None => Ok(None),
+            Some(s) => serde_json::from_str(&s)
+                .map(Some)
+                .map_err(serde::de::Error::custom),
+        }
+    }
 }
 
 impl Default for RequestRequirements {
@@ -992,6 +1019,7 @@ impl RequestRequirements {
             body: None,
             json_body: None,
             json_body_not: None,
+            json_body_str: None,
             json_body_includes: None,
             body_includes: None,
             body_excludes: None,
@@ -1431,6 +1459,8 @@ pub struct StaticRequestRequirements {
     pub json_body: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub json_body_not: Option<Value>,
+    #[serde(skip_serializing_if = "Option::is_none", with = "serde_json_body_str")]
+    pub json_body_str: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub json_body_includes: Option<Vec<Value>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1469,7 +1499,7 @@ pub struct StaticHTTPResponse {
     pub status: Option<u16>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub header: Option<Vec<NameValueStringPair>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", alias = "json_body_str")]
     pub body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub body_base64: Option<String>,
@@ -1601,6 +1631,7 @@ impl TryInto<MockDefinition> for StaticMockDefinition {
                 // JSON Body-related fields
                 json_body: self.when.json_body,
                 json_body_not: self.when.json_body_not,
+                json_body_str: self.when.json_body_str,
                 json_body_includes: self.when.json_body_includes,
                 json_body_excludes: self.when.json_body_excludes,
 
@@ -1963,6 +1994,7 @@ impl TryFrom<&MockDefinition> for StaticMockDefinition {
                 // JSON Body-related fields
                 json_body: value.request.json_body,
                 json_body_not: value.request.json_body_not,
+                json_body_str: value.request.json_body_str,
                 json_body_includes: value.request.json_body_includes,
                 json_body_excludes: value.request.json_body_excludes,
 
