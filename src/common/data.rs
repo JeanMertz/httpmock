@@ -1459,7 +1459,11 @@ pub struct StaticRequestRequirements {
     pub json_body: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub json_body_not: Option<Value>,
-    #[serde(skip_serializing_if = "Option::is_none", with = "serde_json_body_str")]
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        with = "serde_json_body_str"
+    )]
     pub json_body_str: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub json_body_includes: Option<Vec<Value>>,
