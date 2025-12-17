@@ -512,6 +512,19 @@ where
                     body: definition.body,
                 });
 
+        tracing::trace!(
+            status = &resp_def.status,
+            headers = ?resp_def.headers,
+            body = match &resp_def.body {
+                None => "",
+                Some(b) => match std::str::from_utf8(&b.0) {
+                    Ok(s) => s,
+                    Err(_) => "<binary data>",
+                },
+            },
+            "mock response."
+        );
+
         // Convert via your TryFrom<HttpMockResponse> impl
         let http_resp: http::Response<bytes::Bytes> = resp_def
             .try_into()
