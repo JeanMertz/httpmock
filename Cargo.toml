@@ -9,7 +9,7 @@ keywords = ["http", "mock", "test"]
 categories = ["development-tools::testing"]
 license = "MIT"
 repository = "https://github.com/httpmock/httpmock"
-rust-version = "1.83.0"
+rust-version = "1.89.0"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
@@ -38,7 +38,7 @@ tokio = { version = "1.43", features = ["sync", "macros", "rt-multi-thread", "si
 tabwriter = "1"
 colored = { version = "3", optional = true }
 clap = { version = "4", features = ["derive", "env"], optional = true }
-serde_yaml = { version = "0.9", optional = true }
+serde-saphyr = { version = "2", optional = true }
 headers = { version = "0.4", optional = true }
 
 ### TLS / HTTPS / PROXY
@@ -71,7 +71,7 @@ remote-https = ["remote", "rustls", "rustls/ring", "hyper-rustls", "hyper-rustls
 proxy = ["remote-https", "hyper-util/client-legacy", "hyper-util/http2", "hyper-rustls", "hyper-rustls/http2"] # enables proxy functionality
 https = ["rustls", "rcgen", "tokio-rustls", "hyper-rustls", "rustls-pemfile", "rustls/ring", "tls-detect", "if-addrs"] # enables httpmock server support for TLS/HTTPS
 http2 = ["hyper/http2", "hyper-util/http2"] # enables httpmocks server support for HTTP2
-record = ["proxy", "serde_yaml"]
+record = ["proxy", "dep:serde-saphyr"]
 webpki-roots = ["hyper-rustls/webpki-roots"] # enables support for webpki roots
 experimental = [] # marker feature for experimental features
 
